@@ -1,14 +1,24 @@
 import "./style.css";
 import { Highlighter } from "./highlighter";
-import { Toolbar, createClearAllFloatingButton } from "./toolbar";
+import { Toolbar, createClearAllFloatingButton, createExitOverlay } from "./toolbar";
 
 const highlighter = new Highlighter(document);
 
 let currentRange: Range | null = null;
+let isHighlightingEnabled = false; // Start disabled
 
 // Clear-all floating button
 const clearButton = createClearAllFloatingButton(document, () => {
   highlighter.clearAll();
+  clearButton.classList.add("st-hidden");
+});
+
+// Exit overlay (shown when highlighting is active)
+const exitOverlay = createExitOverlay(document, () => {
+  // Exit highlighting mode
+  isHighlightingEnabled = false;
+  exitOverlay.classList.add("st-hidden");
+  toolbar.hide();
   clearButton.classList.add("st-hidden");
 });
 
@@ -32,11 +42,29 @@ const toolbar = new Toolbar(document, {
   }
 });
 
+// Listen for messages from background script (extension icon clicks)
+chrome.runtime.onMessage.addListener((message) => {
+  if (message.action === "toggleHighlighting") {
+    isHighlightingEnabled = !isHighlightingEnabled;
+    if (isHighlightingEnabled) {
+      exitOverlay.classList.remove("st-hidden");
+    } else {
+      exitOverlay.classList.add("st-hidden");
+      toolbar.hide();
+    }
+  }
+});
+
 // Listen for mouseup to detect selection
 document.addEventListener("mouseup", (event) => {
+  // Don't show toolbar if highlighting is disabled
+  if (!isHighlightingEnabled) {
+    return;
+  }
+
   // Ignore clicks on toolbar elements
   const target = event.target as HTMLElement;
-  if (target.closest('.st-toolbar') || target.closest('.st-clear-all')) {
+  if (target.closest('.st-toolbar') || target.closest('.st-clear-all') || target.closest('.st-exit-overlay')) {
     return;
   }
 
