@@ -1,0 +1,65 @@
+/* Highlight spans */
+.st-highlight {
+    border-radius: 3px;
+    padding: 1px 0;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.03);
+    cursor: pointer;
+  }
+  
+  /* Floating toolbar container */
+  .st-toolbar {
+    position: absolute;
+    z-index: 2147483647;
+    display: flex;
+    gap: 4px;
+    padding: 6px 8px;
+    border-radius: 999px;
+    background: rgba(20, 20, 20, 0.95);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(10px);
+    align-items: center;
+  }
+  
+  /* Color pill */
+  .st-color-pill {
+    width: 18px;
+    height: 18px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05);
+    cursor: pointer;
+  }
+  
+  /* Special buttons (Clear) */
+  .st-toolbar-button {
+    font-size: 11px;
+    padding: 2px 8px;
+    margin-left: 4px;
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+    background: #444;
+    color: #f5f5f5;
+  }
+  
+  /* Clear-all button in corner */
+  .st-clear-all {
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    z-index: 2147483647;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(20, 20, 20, 0.9);
+    color: #f5f5f5;
+    font-size: 11px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+  }
+  
+  /* Hidden utility */
+  .st-hidden {
+    display: none !important;
+  }
+  
