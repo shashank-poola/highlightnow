@@ -1,15 +1,25 @@
 {
     "manifest_version": 3,
-    "name": "HighlightNow",
+    "name": "HighlightText",
     "version": "1.0.0",
     "description": "Highlight text while reading. Copy what matters. No clutter.",
     "permissions": [],
     "host_permissions": ["<all_urls>"],
+    "icons": {
+      "16": "highlighttext.png",
+      "48": "highlighttext.png",
+      "128": "highlighttext.png"
+    },
     "background": {
       "service_worker": "background.js"
     },
     "action": {
-      "default_title": "HighlightNow"
+      "default_title": "HighlightText",
+      "default_icon": {
+        "16": "highlighttext.png",
+        "48": "highlighttext.png",
+        "128": "highlighttext.png"
+      }
     },
     "content_scripts": [
       {

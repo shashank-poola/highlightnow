@@ -8,6 +8,8 @@ export type ColorOption = {
 export type ToolbarCallbacks = {
   onColorSelected: (color: HighlightColor) => void;
   onClearAll: () => void;
+  onExport?: () => void;
+  onCopy?: () => void;
 };
 
 export class Toolbar {
@@ -42,6 +44,32 @@ export class Toolbar {
       });
       this.root.appendChild(pill);
     });
+
+    // Copy button
+    if (callbacks.onCopy) {
+      const copyButton = this.doc.createElement("button");
+      copyButton.className = "st-toolbar-button st-toolbar-button-icon";
+      copyButton.innerHTML = "📋";
+      copyButton.title = "Copy all highlights";
+      copyButton.addEventListener("mousedown", (e) => {
+        e.preventDefault();
+        callbacks.onCopy!();
+      });
+      this.root.appendChild(copyButton);
+    }
+
+    // Export button
+    if (callbacks.onExport) {
+      const exportButton = this.doc.createElement("button");
+      exportButton.className = "st-toolbar-button st-toolbar-button-icon";
+      exportButton.innerHTML = "💾";
+      exportButton.title = "Export highlights";
+      exportButton.addEventListener("mousedown", (e) => {
+        e.preventDefault();
+        callbacks.onExport!();
+      });
+      this.root.appendChild(exportButton);
+    }
 
     // Clear button
     this.clearButton = this.doc.createElement("button");
@@ -106,7 +134,7 @@ export function createExitOverlay(
       <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
         <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
       </svg>
-      Exit HighlightNow
+      Exit HighlightText
     </button>
   `;
 
