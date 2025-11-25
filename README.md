@@ -1,8 +1,19 @@
 # HighlightText
 
+[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/yourusername/texthigh)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.6.3-blue.svg)](https://www.typescriptlang.org/)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Chrome](https://img.shields.io/badge/Chrome-Extension-orange.svg)](https://chrome.google.com/webstore)
+
 > Highlight text while reading. Copy what matters. No clutter.
 
 A minimal Chrome extension that does one thing exceptionally well: lets you highlight text on any webpage with beautiful colors, just like you would in a physical book.
+
+## Demo
+
+**[📹 Watch Full Demo Video](https://www.tella.tv/video/shashanks-video-bzgo)** (1:22)
+
+[![HighlightText Demo](https://img.shields.io/badge/▶️-Watch%20Demo-red?style=for-the-badge&logo=youtube)](https://www.tella.tv/video/shashanks-video-bzgo)
 
 ## Why This Exists
 
@@ -11,9 +22,6 @@ Ever find yourself reading a long article, research paper, or documentation and 
 **Or you could just highlight the text.**
 
 That's it. No accounts. No cloud sync. No analytics. Just you, the webpage, and a color palette that doesn't hurt your eyes.
-
-<!-- Add your demo screenshot/video here -->
-<!-- ![Demo](demo.gif) -->
 
 ## What It Does
 
@@ -60,7 +68,18 @@ Select text. Pick a color. Done.
 └── content.ts        → Entry point (wires everything together)
 ```
 
-**Size:** ~12KB minified (smaller than most images on this page)
+**Build Output:**
+```
+dist/assets/content.css   4.09 kB │ gzip: 1.17 kB
+dist/background.js        0.19 kB │ gzip: 0.15 kB
+dist/content.js          14.43 kB │ gzip: 4.65 kB
+```
+**Total Size:** ~18.7 KB (5.97 KB gzipped) - smaller than most images on this page
+
+**Versions:**
+- TypeScript: 5.6.3
+- Vite: 5.4.21
+- Chrome Manifest: V3
 
 ## Installation
 
@@ -132,6 +151,16 @@ HighlightText isn't trying to change your life. It's trying to get out of your w
 - [ ] Firefox & Edge support
 - [ ] Import highlights from file
 
+## Privacy
+
+HighlightText respects your privacy:
+- **No data collection** - Zero tracking, zero analytics
+- **Local storage only** - All highlights stay in your browser
+- **No external connections** - No servers, no APIs, no cloud
+- **Open source** - Full code transparency
+
+Read our [Privacy Policy](PRIVACY_POLICY.md) for complete details.
+
 ## Contributing
 
 Found a bug? Have an idea? Open an issue or submit a PR. Keep it simple. Keep it focused.
@@ -140,4 +169,15 @@ Found a bug? Have an idea? Open an issue or submit a PR. Keep it simple. Keep it
 
 MIT — use it, fork it, learn from it, share it.
 
+## Links
+
+- **Demo Video:** [Watch on Tella](https://www.tella.tv/video/shashanks-video-bzgo)
+- **Chrome Web Store:** Coming soon
+- **Privacy Policy:** [Read here](PRIVACY_POLICY.md)
+- **Issues:** [Report bugs](https://github.com/yourusername/texthigh/issues)
+
 ---
+
+**Built with TypeScript 5.6.3** | **Chrome Manifest V3** | **Version 1.0.0**
+
+*Made with focus and restraint.*
