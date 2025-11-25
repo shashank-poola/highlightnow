@@ -1,10 +1,11 @@
 /* Highlight spans */
 .st-highlight {
     border-radius: 3px;
-    padding: 1px 0;
+    padding: 0 2px;
     box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.03);
     cursor: pointer;
     position: relative;
+    display: inline;
     transition: all 0.2s ease;
   }
 
