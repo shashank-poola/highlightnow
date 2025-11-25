@@ -1,4 +1,5 @@
 import { HighlightColor } from "./highlighter";
+import { iconToSvg } from "./icons";
 
 export type ColorOption = {
   color: HighlightColor;
@@ -15,8 +16,10 @@ export type ToolbarCallbacks = {
 export class Toolbar {
   private readonly doc: Document;
   private readonly root: HTMLDivElement;
+  private readonly colorContainer: HTMLDivElement;
   private readonly clearButton: HTMLButtonElement;
   private isVisible = false;
+  private colorsExpanded = false;
 
   private readonly colors: ColorOption[] = [
     { color: "#fff7a5", label: "Yellow" },
@@ -32,7 +35,20 @@ export class Toolbar {
     this.root = this.doc.createElement("div");
     this.root.className = "st-toolbar st-hidden";
 
-    // Color pills
+    // Palette button (to toggle colors)
+    const paletteButton = this.doc.createElement("button");
+    paletteButton.className = "st-toolbar-button st-toolbar-button-icon";
+    paletteButton.innerHTML = iconToSvg("palette");
+    paletteButton.title = "Select color";
+    paletteButton.addEventListener("mousedown", (e) => {
+      e.preventDefault();
+      this.toggleColors();
+    });
+    this.root.appendChild(paletteButton);
+
+    // Color container (initially hidden)
+    this.colorContainer = this.doc.createElement("div");
+    this.colorContainer.className = "st-color-container st-hidden";
     this.colors.forEach((opt) => {
       const pill = this.doc.createElement("div");
       pill.className = "st-color-pill";
@@ -41,15 +57,17 @@ export class Toolbar {
       pill.addEventListener("mousedown", (e) => {
         e.preventDefault();
         callbacks.onColorSelected(opt.color);
+        this.hideColors();
       });
-      this.root.appendChild(pill);
+      this.colorContainer.appendChild(pill);
     });
+    this.root.appendChild(this.colorContainer);
 
     // Copy button
     if (callbacks.onCopy) {
       const copyButton = this.doc.createElement("button");
       copyButton.className = "st-toolbar-button st-toolbar-button-icon";
-      copyButton.innerHTML = "📋";
+      copyButton.innerHTML = iconToSvg("copy");
       copyButton.title = "Copy all highlights";
       copyButton.addEventListener("mousedown", (e) => {
         e.preventDefault();
@@ -62,7 +80,7 @@ export class Toolbar {
     if (callbacks.onExport) {
       const exportButton = this.doc.createElement("button");
       exportButton.className = "st-toolbar-button st-toolbar-button-icon";
-      exportButton.innerHTML = "💾";
+      exportButton.innerHTML = iconToSvg("folderUp");
       exportButton.title = "Export highlights";
       exportButton.addEventListener("mousedown", (e) => {
         e.preventDefault();
@@ -83,6 +101,20 @@ export class Toolbar {
     this.root.appendChild(this.clearButton);
 
     this.doc.body.appendChild(this.root);
+  }
+
+  private toggleColors() {
+    this.colorsExpanded = !this.colorsExpanded;
+    if (this.colorsExpanded) {
+      this.colorContainer.classList.remove("st-hidden");
+    } else {
+      this.colorContainer.classList.add("st-hidden");
+    }
+  }
+
+  private hideColors() {
+    this.colorsExpanded = false;
+    this.colorContainer.classList.add("st-hidden");
   }
 
   showAt(x: number, y: number) {

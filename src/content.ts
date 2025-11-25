@@ -250,6 +250,12 @@ function showNotification(message: string) {
 
 // Show export menu
 function showExportMenu(highlights: StoredHighlight[]) {
+  // Create backdrop
+  const backdrop = document.createElement("div");
+  backdrop.className = "st-export-backdrop";
+  document.body.appendChild(backdrop);
+
+  // Create menu
   const menu = document.createElement("div");
   menu.className = "st-export-menu";
   menu.innerHTML = `
@@ -262,10 +268,15 @@ function showExportMenu(highlights: StoredHighlight[]) {
 
   document.body.appendChild(menu);
 
+  const closeMenu = () => {
+    menu.remove();
+    backdrop.remove();
+  };
+
   menu.addEventListener("click", (e) => {
     const target = e.target as HTMLElement;
     if (target.classList.contains("st-export-menu-close")) {
-      menu.remove();
+      closeMenu();
       return;
     }
 
@@ -274,20 +285,10 @@ function showExportMenu(highlights: StoredHighlight[]) {
       const content = exporter.export(highlights, format);
       exporter.downloadAsFile(content, format);
       showNotification(`Exported ${highlights.length} highlights as ${format}`);
-      menu.remove();
+      closeMenu();
     }
   });
 
-  // Close on outside click
-  setTimeout(() => {
-    document.addEventListener(
-      "click",
-      (e) => {
-        if (!menu.contains(e.target as Node)) {
-          menu.remove();
-        }
-      },
-      { once: true }
-    );
-  }, 100);
+  // Close on backdrop click
+  backdrop.addEventListener("click", closeMenu);
 }
