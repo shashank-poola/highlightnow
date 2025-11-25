@@ -22,13 +22,23 @@ Select text. Pick a color. Done.
 **Core Features:**
 - **6 hand-picked colors** — yellow, mint green, soft blue, pink, purple, and peach
 - **Instant highlighting** — appears right next to your selection
+- **Persistent highlights** — automatically saved in browser storage, restored on page reload
 - **Smart text handling** — works across complex HTML structures
-- **Copy all highlights** — grab everything you've marked in one click
-- **Clear with one click** — remove all highlights when you're done
+- **Keyboard shortcuts** — lightning-fast highlighting for power users
+- **Export highlights** — download as text, markdown, or JSON
+- **Copy to clipboard** — grab everything you've marked in one click
+- **Click to remove** — click any highlight to delete just that one
 - **Zero bloat** — no permissions beyond what's needed, no tracking, no nonsense
 
+**Keyboard Shortcuts:**
+- `Ctrl+Shift+H` — Highlight selection with last used color (auto-enables highlighting mode)
+- `1-6` (number keys) — Quick color selection when text is selected
+- `Ctrl+Shift+C` — Copy all highlights to clipboard as markdown
+- `Ctrl+Shift+E` — Export highlights menu
+- `Ctrl+Shift+X` — Clear all highlights
+
 **What It Doesn't Do:**
-- Doesn't sync (your highlights stay on the page)
+- Doesn't sync across devices (highlights stay local in browser storage)
 - Doesn't track you (no analytics, no phone home)
 - Doesn't ask for unnecessary permissions
 - Doesn't slow down your browser
@@ -43,12 +53,14 @@ Select text. Pick a color. Done.
 
 **Architecture:**
 ```
-├── highlighter.ts    → Core logic (wrapping text in spans, cleanup)
+├── highlighter.ts    → Core logic (wrapping text in spans, cleanup, restore)
 ├── toolbar.ts        → UI components (color picker, buttons, overlays)
-└── content.js        → Entry point (wires everything together)
+├── storage.ts        → localStorage persistence (save/load highlights)
+├── exporter.ts       → Export engine (text, markdown, JSON formats)
+└── content.ts        → Entry point (wires everything together)
 ```
 
-**Size:** ~3KB minified (that's smaller than most images on this page)
+**Size:** ~12KB minified (smaller than most images on this page)
 
 ## Installation
 
@@ -82,11 +94,22 @@ The extension uses the browser's native Selection API to detect when you highlig
 
 For simple selections, it uses `Range.surroundContents()`. For complex selections spanning multiple elements, it extracts the contents, wraps them, and reinserts them. The result? Highlights that feel native to the page.
 
+**Persistence Strategy:**
+Highlights are stored in localStorage keyed by page URL. Each highlight records:
+- The text content
+- The color
+- An XPath to locate the text node
+- Character offset and length
+- Timestamp
+
+When you revisit a page, the extension restores highlights by recreating the DOM ranges using stored XPath selectors. No server, no API calls, no sync conflicts.
+
 **Key Implementation Details:**
 - Uses a custom class prefix to avoid conflicts with existing page styles
 - Normalizes text nodes after removal to prevent fragmentation
 - Handles edge cases like collapsed selections and complex DOM structures
 - All highlights are DOM-based (no canvas overlays or weird hacks)
+- XPath-based restoration survives most page updates
 
 ## Philosophy
 
@@ -100,11 +123,14 @@ HighlightText isn't trying to change your life. It's trying to get out of your w
 
 ## Roadmap
 
-- [ ] Persistent highlights (local storage)
-- [ ] Export to markdown
-- [ ] Keyboard shortcuts
+- [x] Persistent highlights (localStorage) ✓
+- [x] Export to markdown/text/JSON ✓
+- [x] Keyboard shortcuts ✓
+- [x] Copy to clipboard ✓
 - [ ] Custom color picker
 - [ ] Highlight annotations/notes
+- [ ] Firefox & Edge support
+- [ ] Import highlights from file
 
 ## Contributing
 

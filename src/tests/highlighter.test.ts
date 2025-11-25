@@ -26,9 +26,11 @@ describe("Highlighter", () => {
     range.setEnd(textNode, endIndex);
 
     const highlighter = new Highlighter(doc);
-    const success = highlighter.highlightRange(range, "#fff7a5");
+    const result = highlighter.highlightRange(range, "#fff7a5");
 
-    expect(success).toBe(true);
+    expect(result).not.toBeNull();
+    expect(result?.text).toBe("art of writing");
+    expect(result?.color).toBe("#fff7a5");
 
     const highlights = doc.querySelectorAll(".st-highlight");
     expect(highlights.length).toBe(1);
