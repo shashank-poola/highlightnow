@@ -23,11 +23,11 @@ Select text. Pick a color. Done.
 - **6 hand-picked colors** — yellow, mint green, soft blue, pink, purple, and peach
 - **Instant highlighting** — appears right next to your selection
 - **Persistent highlights** — automatically saved in browser storage, restored on page reload
+- **Hover actions** — hover over any highlight to see copy and delete icon buttons
 - **Smart text handling** — works across complex HTML structures
 - **Keyboard shortcuts** — lightning-fast highlighting for power users
 - **Export highlights** — download as text, markdown, or JSON
 - **Copy to clipboard** — grab everything you've marked in one click
-- **Click to remove** — click any highlight to delete just that one
 - **Zero bloat** — no permissions beyond what's needed, no tracking, no nonsense
 
 **Keyboard Shortcuts:**

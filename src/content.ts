@@ -9,44 +9,54 @@ const storage = new HighlightStorage();
 const exporter = new HighlightExporter();
 
 let currentRange: Range | null = null;
-let isHighlightingEnabled = false; // Start disabled
-let lastUsedColor: HighlightColor = "#fff7a5"; // Default to yellow
+let isHighlightingEnabled = false;
+let lastUsedColor: HighlightColor = "#fff7a5";
 
-// Save all current highlights to storage
 async function saveHighlights() {
-  const highlights = highlighter.getAllHighlights();
-  await storage.save(highlights);
+  await storage.save(highlighter.getAllHighlights());
 }
 
-// Clear-all floating button
+function updateClearButtonVisibility() {
+  if (highlighter.getAllHighlightedText()) {
+    clearButton.classList.remove("st-hidden");
+  } else {
+    clearButton.classList.add("st-hidden");
+  }
+}
+
+async function copyTextToClipboard(text: string) {
+  try {
+    await navigator.clipboard.writeText(text);
+    showNotification("Copied!");
+  } catch {
+    showNotification("Copy failed");
+  }
+}
+
 const clearButton = createClearAllFloatingButton(document, async () => {
   highlighter.clearAll();
   await storage.clear();
   clearButton.classList.add("st-hidden");
 });
 
-// Exit overlay (shown when highlighting is active)
 const exitOverlay = createExitOverlay(document, () => {
-  // Exit highlighting mode
   isHighlightingEnabled = false;
   exitOverlay.classList.add("st-hidden");
   toolbar.hide();
   clearButton.classList.add("st-hidden");
 });
 
-// Setup toolbar
 const toolbar = new Toolbar(document, {
   onColorSelected: async (color) => {
     if (!currentRange) return;
-    const storedHighlight = highlighter.highlightRange(currentRange, color);
-    if (storedHighlight) {
+    const highlight = highlighter.highlightRange(currentRange, color);
+    if (highlight) {
       lastUsedColor = color;
-      clearButton.classList.remove("st-hidden");
       await saveHighlights();
+      updateClearButtonVisibility();
+      attachHighlightActions();
     }
-    // Clear the selection so it doesn't stay blue
     window.getSelection()?.removeAllRanges();
-    // Hide toolbar immediately
     toolbar.hide();
     currentRange = null;
   },
@@ -56,206 +66,173 @@ const toolbar = new Toolbar(document, {
     clearButton.classList.add("st-hidden");
   },
   onCopy: async () => {
-    const highlights = highlighter.getAllHighlights();
-    const content = exporter.export(highlights, "markdown");
-    const success = await exporter.copyToClipboard(content);
-    if (success) {
-      showNotification("Highlights copied to clipboard!");
+    const content = exporter.export(highlighter.getAllHighlights(), "markdown");
+    if (await exporter.copyToClipboard(content)) {
+      showNotification("Copied to clipboard!");
     }
   },
-  onExport: () => {
-    const highlights = highlighter.getAllHighlights();
-    showExportMenu(highlights);
-  }
+  onExport: () => showExportMenu(highlighter.getAllHighlights())
 });
 
-// Listen for messages from background script (extension icon clicks)
 chrome.runtime.onMessage.addListener((message) => {
   if (message.action === "toggleHighlighting") {
     isHighlightingEnabled = !isHighlightingEnabled;
-    if (isHighlightingEnabled) {
-      exitOverlay.classList.remove("st-hidden");
-    } else {
-      exitOverlay.classList.add("st-hidden");
-      toolbar.hide();
-    }
+    exitOverlay.classList.toggle("st-hidden", !isHighlightingEnabled);
+    if (!isHighlightingEnabled) toolbar.hide();
   }
 });
 
-// Listen for mouseup to detect selection
 document.addEventListener("mouseup", (event) => {
-  // Don't show toolbar if highlighting is disabled
-  if (!isHighlightingEnabled) {
-    return;
-  }
+  if (!isHighlightingEnabled) return;
 
-  // Ignore clicks on toolbar elements
   const target = event.target as HTMLElement;
-  if (target.closest('.st-toolbar') || target.closest('.st-clear-all') || target.closest('.st-exit-overlay')) {
-    return;
-  }
+  if (target.closest('.st-toolbar, .st-clear-all, .st-exit-overlay')) return;
 
   const selection = window.getSelection();
-  if (!selection || selection.rangeCount === 0) {
+  if (!selection?.rangeCount || !selection.toString().trim()) {
     toolbar.hide();
     return;
   }
 
   const range = selection.getRangeAt(0);
-  const text = selection.toString().trim();
-
-  if (!text) {
-    toolbar.hide();
-    return;
-  }
-
-  // Clone the range to prevent it from becoming invalid when selection is cleared
   currentRange = range.cloneRange();
 
   const rect = range.getBoundingClientRect();
-  const toolbarX = rect.left + window.scrollX + rect.width / 2;
-  const toolbarY = rect.top + window.scrollY - 40; // slightly above
-
-  toolbar.showAt(toolbarX, toolbarY);
+  toolbar.showAt(
+    rect.left + window.scrollX + rect.width / 2,
+    rect.top + window.scrollY - 40
+  );
 });
 
-// Handle clicks on the page - only for removing highlights
-document.addEventListener("click", async (event) => {
-  const target = event.target as HTMLElement | null;
-  if (!target) return;
+function attachHighlightActions() {
+  document.querySelectorAll(".st-highlight").forEach((highlight) => {
+    if (highlight.querySelector(".st-highlight-actions")) return;
 
-  // If clicking on a highlight, remove it
-  if (target.classList.contains("st-highlight")) {
-    event.preventDefault();
-    highlighter.removeHighlightElement(target);
-    await saveHighlights();
-    if (!highlighter.getAllHighlightedText()) {
-      clearButton.classList.add("st-hidden");
-    }
-  }
-});
+    const highlightEl = highlight as HTMLElement;
+    let actionsEl: HTMLDivElement | null = null;
 
-// Load highlights on page load
+    highlightEl.addEventListener("mouseenter", () => {
+      actionsEl = document.createElement("div");
+      actionsEl.className = "st-highlight-actions";
+
+      const copyBtn = document.createElement("button");
+      copyBtn.className = "st-highlight-action-btn copy";
+      copyBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>`;
+      copyBtn.title = "Copy this text";
+      copyBtn.onclick = (e) => {
+        e.stopPropagation();
+        copyTextToClipboard(highlightEl.textContent || "");
+      };
+
+      const deleteBtn = document.createElement("button");
+      deleteBtn.className = "st-highlight-action-btn delete";
+      deleteBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>`;
+      deleteBtn.title = "Delete this highlight";
+      deleteBtn.onclick = async (e) => {
+        e.stopPropagation();
+        highlighter.removeHighlightElement(highlightEl);
+        await saveHighlights();
+        updateClearButtonVisibility();
+      };
+
+      actionsEl.appendChild(copyBtn);
+      actionsEl.appendChild(deleteBtn);
+      highlightEl.appendChild(actionsEl);
+    });
+
+    highlightEl.addEventListener("mouseleave", () => {
+      actionsEl?.remove();
+      actionsEl = null;
+    });
+  });
+}
+
 (async () => {
-  const storedHighlights = await storage.load();
-  let restoredCount = 0;
+  const highlights = await storage.load();
+  const restored = highlights.filter(h => highlighter.restoreHighlight(h));
 
-  for (const highlight of storedHighlights) {
-    if (highlighter.restoreHighlight(highlight)) {
-      restoredCount++;
-    }
-  }
-
-  if (restoredCount > 0) {
-    clearButton.classList.remove("st-hidden");
+  if (restored.length > 0) {
+    updateClearButtonVisibility();
+    attachHighlightActions();
   }
 })();
 
-// Keyboard shortcuts
+const COLORS: HighlightColor[] = ["#fff7a5", "#c2ffd2", "#c9e4ff", "#ffd3f8", "#e0c9ff", "#ffe0b5"];
+
+async function highlightSelection(color: HighlightColor) {
+  const selection = window.getSelection();
+  if (!selection?.rangeCount || !selection.toString().trim()) return;
+
+  const highlight = highlighter.highlightRange(selection.getRangeAt(0), color);
+  if (highlight) {
+    lastUsedColor = color;
+    await saveHighlights();
+    updateClearButtonVisibility();
+    attachHighlightActions();
+  }
+  selection.removeAllRanges();
+  toolbar.hide();
+}
+
 document.addEventListener("keydown", async (event) => {
-  // Ctrl+Shift+H: Highlight with last used color
-  if (event.ctrlKey && event.shiftKey && event.key === "H") {
+  const { ctrlKey, shiftKey, key } = event;
+
+  if (ctrlKey && shiftKey && key === "H") {
     event.preventDefault();
     if (!isHighlightingEnabled) {
       isHighlightingEnabled = true;
       exitOverlay.classList.remove("st-hidden");
     }
-
-    const selection = window.getSelection();
-    if (selection && selection.rangeCount > 0 && selection.toString().trim()) {
-      const range = selection.getRangeAt(0);
-      const storedHighlight = highlighter.highlightRange(range, lastUsedColor);
-      if (storedHighlight) {
-        clearButton.classList.remove("st-hidden");
-        await saveHighlights();
-      }
-      selection.removeAllRanges();
-    }
+    await highlightSelection(lastUsedColor);
   }
 
-  // Ctrl+Shift+C: Copy all highlights
-  if (event.ctrlKey && event.shiftKey && event.key === "C") {
+  if (ctrlKey && shiftKey && key === "C") {
     event.preventDefault();
-    const highlights = highlighter.getAllHighlights();
-    if (highlights.length > 0) {
-      const content = exporter.export(highlights, "markdown");
-      const success = await exporter.copyToClipboard(content);
-      if (success) {
-        showNotification("Highlights copied to clipboard!");
-      }
+    const content = exporter.export(highlighter.getAllHighlights(), "markdown");
+    if (await exporter.copyToClipboard(content)) {
+      showNotification("Copied to clipboard!");
     }
   }
 
-  // Ctrl+Shift+X: Clear all highlights
-  if (event.ctrlKey && event.shiftKey && event.key === "X") {
+  if (ctrlKey && shiftKey && key === "X") {
     event.preventDefault();
     highlighter.clearAll();
     await storage.clear();
     clearButton.classList.add("st-hidden");
   }
 
-  // Ctrl+Shift+E: Export highlights
-  if (event.ctrlKey && event.shiftKey && event.key === "E") {
+  if (ctrlKey && shiftKey && key === "E") {
     event.preventDefault();
     const highlights = highlighter.getAllHighlights();
-    if (highlights.length > 0) {
-      showExportMenu(highlights);
-    }
+    if (highlights.length > 0) showExportMenu(highlights);
   }
 
-  // Number keys 1-6 for quick color selection (when text is selected)
-  if (isHighlightingEnabled && event.key >= "1" && event.key <= "6") {
-    const colors: HighlightColor[] = [
-      "#fff7a5",
-      "#c2ffd2",
-      "#c9e4ff",
-      "#ffd3f8",
-      "#e0c9ff",
-      "#ffe0b5",
-    ];
-    const colorIndex = parseInt(event.key) - 1;
-    const selection = window.getSelection();
-
-    if (selection && selection.rangeCount > 0 && selection.toString().trim()) {
+  if (isHighlightingEnabled && key >= "1" && key <= "6") {
+    const colorIndex = parseInt(key) - 1;
+    if (window.getSelection()?.toString().trim()) {
       event.preventDefault();
-      const range = selection.getRangeAt(0);
-      const storedHighlight = highlighter.highlightRange(range, colors[colorIndex]);
-      if (storedHighlight) {
-        lastUsedColor = colors[colorIndex];
-        clearButton.classList.remove("st-hidden");
-        await saveHighlights();
-      }
-      selection.removeAllRanges();
-      toolbar.hide();
+      await highlightSelection(COLORS[colorIndex]);
     }
   }
 });
 
-// Show notification
 function showNotification(message: string) {
   const notification = document.createElement("div");
   notification.className = "st-notification";
   notification.textContent = message;
   document.body.appendChild(notification);
 
-  setTimeout(() => {
-    notification.classList.add("st-notification-show");
-  }, 10);
-
+  setTimeout(() => notification.classList.add("st-notification-show"), 10);
   setTimeout(() => {
     notification.classList.remove("st-notification-show");
     setTimeout(() => notification.remove(), 300);
   }, 2000);
 }
 
-// Show export menu
 function showExportMenu(highlights: StoredHighlight[]) {
-  // Create backdrop
   const backdrop = document.createElement("div");
   backdrop.className = "st-export-backdrop";
-  document.body.appendChild(backdrop);
 
-  // Create menu
   const menu = document.createElement("div");
   menu.className = "st-export-menu";
   menu.innerHTML = `
@@ -266,8 +243,6 @@ function showExportMenu(highlights: StoredHighlight[]) {
     <button class="st-export-menu-item st-export-menu-close">Cancel</button>
   `;
 
-  document.body.appendChild(menu);
-
   const closeMenu = () => {
     menu.remove();
     backdrop.remove();
@@ -275,20 +250,16 @@ function showExportMenu(highlights: StoredHighlight[]) {
 
   menu.addEventListener("click", (e) => {
     const target = e.target as HTMLElement;
-    if (target.classList.contains("st-export-menu-close")) {
-      closeMenu();
-      return;
-    }
+    if (target.classList.contains("st-export-menu-close")) return closeMenu();
 
     const format = target.dataset.format as "text" | "markdown" | "json" | undefined;
     if (format) {
-      const content = exporter.export(highlights, format);
-      exporter.downloadAsFile(content, format);
-      showNotification(`Exported ${highlights.length} highlights as ${format}`);
+      exporter.downloadAsFile(exporter.export(highlights, format), format);
+      showNotification(`Exported ${highlights.length} highlights`);
       closeMenu();
     }
   });
 
-  // Close on backdrop click
   backdrop.addEventListener("click", closeMenu);
+  document.body.append(backdrop, menu);
 }

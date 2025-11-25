@@ -4,6 +4,56 @@
     padding: 1px 0;
     box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.03);
     cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+  }
+
+  .st-highlight:hover {
+    opacity: 0.7;
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.15);
+    filter: brightness(0.95);
+  }
+
+  /* Hover action buttons */
+  .st-highlight-actions {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    display: flex;
+    gap: 4px;
+    z-index: 1000;
+  }
+
+  .st-highlight-action-btn {
+    width: 22px;
+    height: 22px;
+    padding: 3px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    transition: transform 0.15s ease;
+  }
+
+  .st-highlight-action-btn svg {
+    width: 14px;
+    height: 14px;
+    stroke: white;
+  }
+
+  .st-highlight-action-btn:hover {
+    transform: scale(1.15);
+  }
+
+  .st-highlight-action-btn.copy {
+    background: rgba(59, 130, 246, 0.95);
+  }
+
+  .st-highlight-action-btn.delete {
+    background: rgba(239, 68, 68, 0.95);
   }
   
   /* Floating toolbar container */
