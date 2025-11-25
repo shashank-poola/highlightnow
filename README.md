@@ -11,9 +11,8 @@ A minimal Chrome extension that does one thing exceptionally well: lets you high
 
 ## Demo
 
-**[📹 Watch Full Demo Video](https://www.tella.tv/video/shashanks-video-bzgo)** (1:22)
+![Frontend](video.mp4)
 
-[![HighlightText Demo](https://img.shields.io/badge/▶️-Watch%20Demo-red?style=for-the-badge&logo=youtube)](https://www.tella.tv/video/shashanks-video-bzgo)
 
 ## Why This Exists
 
@@ -171,10 +170,9 @@ MIT — use it, fork it, learn from it, share it.
 
 ## Links
 
-- **Demo Video:** [Watch on Tella](https://www.tella.tv/video/shashanks-video-bzgo)
 - **Chrome Web Store:** Coming soon
 - **Privacy Policy:** [Read here](PRIVACY_POLICY.md)
-- **Issues:** [Report bugs](https://github.com/yourusername/texthigh/issues)
+- **Issues:** [Report bugs](https://github.com/shashank-poola/highlightnow/issues)
 
 ---
 
