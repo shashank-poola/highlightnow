@@ -11,9 +11,6 @@ A minimal Chrome extension that does one thing exceptionally well: lets you high
 
 ## Demo
 
-![frontend](video.mp4)
-
-> *Video shows: Enabling the extension, highlighting text with multiple colors, hover actions (copy/delete), export menu, and auto-restore on page refresh*
 
 **Or watch on Tella:** [Full Demo Video (1:22)](https://www.tella.tv/video/shashanks-video-bzgo)
 
