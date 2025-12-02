@@ -1,6 +1,6 @@
 # Privacy Policy for HighlightText
 
-**Last Updated:** November 25, 2024
+**Last Updated:** December 2, 2025
 
 ## Overview
 
@@ -64,9 +64,9 @@ If we update this privacy policy, we will update the "Last Updated" date at the 
 ## Contact
 
 If you have questions about this privacy policy, you can:
-- Open an issue on our GitHub repository: https://github.com/[your-username]/texthigh
-- Email: [your-email]
+- Open an issue on our GitHub repository: https://github.com/shashank-poola/highlighttext
+- Email: shashankpoolaworks@gmail.com
 
 ## Open Source
 
-HighlightText is open source. You can review the complete source code to verify our privacy claims at: https://github.com/[your-username]/texthigh
+HighlightText is open source. You can review the complete source code to verify our privacy claims at: https://github.com/shashank-poola/highlighttext
