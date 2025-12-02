@@ -133,6 +133,8 @@ When you revisit a page, the extension restores highlights by recreating the DOM
 - All highlights are DOM-based (no canvas overlays or weird hacks)
 - XPath-based restoration survives most page updates
 
+  ![frontend](demo1.png)
+
 ## Philosophy
 
 > "The best tools are invisible until you need them, then they just work."
